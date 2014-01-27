@@ -17,6 +17,7 @@ from optparse import OptionParser
 
 '''
 Parse the Dimacs file which is in Conjunctive Normal Form
+TODO: change "print" comments to logger!
 
 '''
 class DimacsParser(object):
