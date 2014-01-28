@@ -12,8 +12,10 @@ Maintains a set of literals in a sentence (in Conjunctive Normal Form) as well a
 the DPLL procedure
 '''
 class Literals(object):
-        def __init__(self):
+        def __init__(self, literals=[]):
                 self.literals = set()
+                if literals:
+                        self.literals = set(literals)
                 self.stack = []
                 #maintain a current stack of conflicts, push and pop conflicts
                 self.conflicts = []
