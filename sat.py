@@ -51,7 +51,7 @@ class SAT(object):
     :param: symbols, set set([7, 15, 8, 4,12])
     :param: clauses --> remains unchanged!!! list of lists: [[7,2,3],[6,-14,2],[7,15,-3]]
     '''
-    def _dpll(clauses, symbols, model={}):
+    def _dpll(self, clauses, symbols, model={}):
 
         #if every clause in clauses is True in model return True
         if model:
@@ -111,7 +111,7 @@ class SAT(object):
     :param: model
     :return first pure literal seen
     '''
-    def _find_pure_symbol(clauses, symbols, model):
+    def _find_pure_symbol(self, clauses, symbols, model):
         pure = None
         flatten = [ sublist for x in clauses for sublist in x]
         unique = [ literal for literal in flatten if -literal not in flatten]
@@ -126,7 +126,7 @@ class SAT(object):
     :param: clauses
     :param: model
     '''
-    def _find_unit_clause(clauses, model):
+    def _find_unit_clause(self, clauses, model):
         found_literals = []
         for cl in model:
                 if len(cl['clause']) == self._UNIT_:
@@ -147,15 +147,13 @@ class SAT(object):
     :return literal
     :rtype int
     '''
-    def _most_watched(clauses, symbols):
+    def _most_watched(self, clauses, symbols):
 
         most_watched = None
         if symbols:
-                #count = dict(zip(symbols, [0 for x in range(len(symbols))]))
-                cl_symbols = [ symbol for x in clauses for symbol in x['clause']]
-                #most_watched = sorted(count.items(), key=lambda (k,v): v, reverse=True)[0]
-                count = Counter(cl_symbols)
-                most_watched = count.most_common(1)[0][0]
+            cl_symbols = [ symbol for x in clauses for symbol in x['clause']]
+            count = Counter(cl_symbols)
+            most_watched = count.most_common(1)[0][0]
 
         return most_watched
 	
@@ -163,7 +161,7 @@ class SAT(object):
     Conflict directed backjumping
     re-assign q and see if there are any conflicts
     '''
-    def _cbj(clauses, symbols, model, q):
+    def _cbj(self, clauses, symbols, model, q):
 
         resolved = True
 
@@ -186,7 +184,7 @@ class SAT(object):
     :param: model
     :param: q - literal to be un-assigned
     '''
-    def _undo(clauses, symbols, model, q):
+    def _undo(self, clauses, symbols, model, q):
         #unassign literal q in symbols
         symbols.unassign(q)
         #insert q back in the model
@@ -202,7 +200,7 @@ class SAT(object):
     :param: model
     :param: q literal to be re-assigned
     '''
-    def _backtrack(clauses, symbols, model, q):
+    def _backtrack(self, clauses, symbols, model, q):
 
         self._undo(clauses, symbols, model, q)
         is_assigned = self._cbj(clauses, symbols, model, -q)
@@ -229,7 +227,7 @@ class SAT(object):
     :param: model
     :param: P a literal that is assigned either True or False
     '''
-    def _update_model(model, P):
+    def _update_model(self, model, P):
         for cl in model:
         #case 1: P is True and in the clause --> we can assign clause as True
             if P > 0 and P in cl['clause']:
@@ -243,7 +241,7 @@ class SAT(object):
                     cl['clause'] = True
             #case 4: P is False and the negation is in the clause
             # [A v -B v -C] and A is assigned False -A, then remove A and keep the other unassigned literals in the clause
-            elif P < 0 and ((P*-1) in cl['clause']:
+            elif P < 0 and ((P*-1) in cl['clause']):
                     cl['clause'].remove(P)
 
 
@@ -258,7 +256,7 @@ class SAT(object):
     '''
     Forward Chaining
     '''
-    def _unit_propagation(clauses, model, assignment):
+    def _unit_propagation(self, clauses, model, assignment):
         for cl in clauses:
             if len(cl['clause']) == 1:
                 if cl['clause'] == assignment or cl['clause'] == -assignment:
@@ -280,7 +278,7 @@ class SAT(object):
     param: clauses
     param: P assignment of literal
     '''
-    def _simplify(clauses, model, P):
+    def _simplify(self, clauses, model, P):
         #find clauses to remove
         remove = [i for i in clauses if (P in i and P < 0) or (P in i and P > 0)]
 
@@ -295,10 +293,4 @@ class SAT(object):
         [ cl['clause'].remove(-p) for cl in model if (-p in cl['clause'] and p > 0) or (-p in cl['clause'] and p < 0)]
 
         return (clauses, model, P)
-
-
-
-
-
-
 
