@@ -13,7 +13,7 @@ import sys
 
 from collections import Counter
 from optparse import OptionParser
-
+from literals import Literals
 
 '''
 Parse the Dimacs file which is in Conjunctive Normal Form
@@ -21,16 +21,16 @@ TODO: change "print" comments to logger!
 
 '''
 class DimacsParser(object):
-        def __init__(self,filepath):
+        def __init__(self, filepath):
                 self.file_path = filepath
                 self.clauses = []
                 self.symbols = Literals()
-                self.model
+                self.model = {}
 
-        def parse():
+        def parse(self):
                 symbol_list = []
-                if filepath:
-                        with open(self.filepath) as data:
+                if self.file_path:
+                        with open(self.file_path) as data:
                                 data_lines = (line.rstrip("\r\n") for line in data)
                                 for line in data_lines:
                                         match_comment = re.match("^p", line)
@@ -40,14 +40,14 @@ class DimacsParser(object):
                                         if match_clause:
                                                 print "number of clauses: %s and number of variables: %s" % (split_lines[-1], split_lines[-2])
                                         if match_clause:
-                                                self.clauses.append(int([split_lines[0]]) + int([split_lines[1]]) + int([split_lines[2]]))
+                                                self.clauses.append([int(split_lines[0]) + int(split_lines[1]) + int(split_lines[2])])
                                                 symbol_list.extend(self.clauses[-1])
                                                 print "adding clause: %s"%self.clauses[-1]
 
                         [self.symbol.add(symbol) for symbol in symbol_list]
-                else:
-                        raise FileInputException("no file path provided")
 
-        def sentences():
-                self.model = [{'clause':cl, 'original':cl, 'conflict' = []} for cl in self.clauses]
+
+        def sentences(self):
+                self.model = [{'clause':cl, 'original':cl, 'conflict': []} for cl in self.clauses]
                 return (self.clauses, self.symbols, self.model)
+
