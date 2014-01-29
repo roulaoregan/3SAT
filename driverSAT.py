@@ -35,7 +35,7 @@ def main(argv):
 
 	arg_handler = OptionParser("DPLL 3 SAT Solver")
 	arg_handler.add_option('d', '--debug', type='string', help='debug and log info and errors')    
-	arg_handler.add_option('p', '--printtostdout', action='store_true', default=False, help='Print all log message to stdout')
+	#arg_handler.add_option('p', '--printtostdout', action='store_true', default=False, help='Print all log message to stdout')
 	options, args = arg_handler.parse_args()
 
 	#Parse Dimacs file
@@ -43,10 +43,12 @@ def main(argv):
 	parse_file.parse()
 	(clauses, literals, model) = parse_file.sentences()
 	symbols = Literals(literals)
+	
 	logger.info("parsed Dimacs file")
 	logger.info("clauses: %s"%(clauses))
 	logger.info("created Literals() and add symbols: %s"%(symbols))
 	logger.info("model: %s"%(model))
+	
 	#call SAT Solver
 	solver = SAT(clauses, symbols, model)
 	satisfiable = solver.satisfiable(clauses, symbols, model)
