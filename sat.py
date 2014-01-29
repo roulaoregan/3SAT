@@ -16,7 +16,7 @@ from optparse import OptionParser
 
 
 class SAT(object):
-    def __init__(self, logger, clauses=None, symbols=None, model=None):
+    def __init__(self, logger=None, clauses=None, symbols=None, model=None):
 
         self.logger = logger
         self.clauses = clauses
