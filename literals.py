@@ -12,17 +12,15 @@ Maintains a set of literals in a sentence (in Conjunctive Normal Form) as well a
 the DPLL procedure
 '''
 class Literals(object):
-        def __init__(self, literals=[]):
+        def __init__(self):
                 self.literals = set()
-                if literals:
-                        self.literals = set(literals)
                 self.stack = []
                 #maintain a current stack of conflicts, push and pop conflicts
                 self.conflicts = []
                 #is a record/memo of all the conflicts that are resolved
                 self.prev_assigned = []
 
-        def add(literal):
+        def add(self, literal):
                 if literal not in self.literals:
                         self.literals.append(literal)
 
@@ -39,7 +37,7 @@ class Literals(object):
 
                 return reassigned
         '''
-        def unassign(literal):
+        def unassign(self, literal):
                 if literal in self.stack:
                         self.stack.remove(literal)
                 if literal in self.conflicts:
@@ -48,36 +46,36 @@ class Literals(object):
                 if literal not in self.prev_assigned:
                         self.prev_assigned.append(literal)
 
-        def conflict(literal):
+        def conflict(self, literal):
                 self.conflicts.append(literal)
                 
 
-        def unresolved(literal):
+        def unresolved(self, literal):
                 return ((literal and -literal) in self.conflicts)
 
-        def previously_assigned(literal):
+        def previously_assigned(self, literal):
                 return ((literal or -literal) in self.prev_assigned)
         '''
 
         '''
-        def assign(literal):
-                assign = True
-                if ((literal or -literal) not in self.stack and not in self.unresolved(literal):
-                        self.stack.append((literal)
-                else:
-                        assign = False
+        def assign(self, literal):
+                assign = False
+                if ((literal or -literal) not in self.stack) and not self.unresolved(literal):
+                        self.stack.append(literal)
+                        assign = True
 
                 return assign
 
-        def pop():
+        def pop(self):
                 unassign = self.stack.pop()
                 self.prev_assigned.append(unassign)
                 return unassign
 
         #check if stack is empty, ie check if we have backtracked to the beginning
-        def empty():
+        def empty(self):
                 empty = False
                 if not self.stack:
                         empty = True
                 return empty
   
+
