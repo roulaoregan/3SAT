@@ -44,14 +44,16 @@ def main(argv):
 	(clauses, literals, model) = parse_file.sentences()
 	symbols = Literals(literals)
 	
-	logger.info("parsed Dimacs file")
-	logger.info("clauses: %s"%(clauses))
-	logger.info("created Literals() and add symbols: %s"%(symbols))
-	logger.info("model: %s"%(model))
+	logger.debug("parsed Dimacs file")
+	logger.debug("clauses: %s"%(clauses))
+	logger.debug("created Literals() and add symbols: %s"%(symbols))
+	logger.debug("model: %s"%(model))
 	
 	#call SAT Solver
-	solver = SAT(clauses, symbols, model)
-	satisfiable = solver.satisfiable(clauses, symbols, model)
+	solver = SAT(logger=logger, clauses=clauses, symbols=symbols, model=model)
+	logger.debug("calling SAT solver")
+	satisfiable = solver.satisfiable()
+
 
 
 if __name__ = "__main__":
