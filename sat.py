@@ -4,7 +4,7 @@
  email: roula.oregan@gmail.com
  github user: roulaoregan
 '''
-import logger
+import logging
 import math
 import os
 import random
