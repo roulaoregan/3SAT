@@ -17,8 +17,6 @@ from literals import Literals
 
 '''
 Parse the Dimacs file which is in Conjunctive Normal Form
-TODO: change "print" comments to logger!
-
 '''
 class DimacsParser(object):
         def __init__(self, filepath, log):
@@ -40,7 +38,6 @@ class DimacsParser(object):
                                         split_lines = line.rsplit(" ")
 
                                         if match_comment:
-                                                print "number of clauses: %s and number of variables: %s" % (split_lines[-1], split_lines[-2])
                                                 self.log.debug("number of clauses: %s and number of variables: %s" % (split_lines[-1], split_lines[-2]))
                                         
                                         if match_clause:                                                
