@@ -40,7 +40,7 @@ class DimacsParser(object):
                                                 self.log.debug("number of clauses: %s and number of variables: %s" % (split_lines[-1], split_lines[-2]))
                                         
                                         if match_clause:                                                
-                                                clause = [split_lines[x] for x in range(3)]
+                                                clause = [int(split_lines[x]) for x in range(3)]
                                                 self.log.debug("adding clause: %s"%clause)
                                                 self.clauses.append(clause)
                                                 symbol_list.extend(clause)    
