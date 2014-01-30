@@ -22,7 +22,7 @@ class Literals(object):
 
         def add(self, literal):
                 if literal not in self.literals:
-                        self.literals.append(literal)
+                        self.literals.add(literal)
 
         #def is_reassigned(literal):
         #       return (literal in self.reassigned)
@@ -70,6 +70,12 @@ class Literals(object):
                 unassign = self.stack.pop()
                 self.prev_assigned.append(unassign)
                 return unassign
+
+        
+        def remove(self, literal):
+                print "!!!!!!!!!"
+                print self.literals
+                self.literals.remove(literal)
 
         #check if stack is empty, ie check if we have backtracked to the beginning
         def empty(self):
