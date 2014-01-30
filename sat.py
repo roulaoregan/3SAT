@@ -57,6 +57,8 @@ class SAT(object):
     :param: clauses --> remains unchanged!!! list of lists: [[7,2,3],[6,-14,2],[7,15,-3]]
     '''
     def _dpll(self, clauses, symbols, model={}):
+        print "--->>>>> start dpll"
+        print "symbols: %s"%symbols.literals
 
         #if every clause in clauses is True in model return True
         if model:
@@ -84,9 +86,10 @@ class SAT(object):
             self.log.debug("removing pure literal P: %s"%P)
             self.log.debug("forward chaining calling unit_prop")
             symbols.remove(P)
-            self._unit_propagation(clauses, model, P) #clauses, model, assignment
-
-            return self._dpll(clauses, symbols, model)
+            u_clauses, u_model, _ = self._unit_propagation(clauses, model, P) #clauses, model, assignment
+            self.log.debug("RECURSIVE CALL: calling dpll function")
+            print "revised symbols.literals %s"%symbols.literals
+            return self._dpll(u_clauses, symbols , u_model)
 
         #Heuristic 2: Unit Clause and Unit Propagation
         P = self._find_unit_clause(clauses, model)
@@ -117,14 +120,17 @@ class SAT(object):
     :return first pure literal seen
     '''
     def _find_pure_symbol(self, clauses, symbols, model):
+        print "---->>>> inside _find_pure_symbol function"
+        print "---------->>>>> symbols: %s"%symbols.literals
         pure = None
         flatten = [ sublist for x in clauses for sublist in x]
         unique = [ literal for literal in flatten if -literal not in flatten]
-            
+        print "---- flatten: %s"%flatten
+        print "----- unique: %s"%unique
         if unique:
             self.log.debug("found unique symbol unique list: %s returning last one found: %s"%(unique,unique[-1]))
             pure = unique[-1]
-
+        print "pure: %s"%pure
         return pure
 
     '''
@@ -136,6 +142,7 @@ class SAT(object):
         for cl in model:
                 if len(cl['clause']) == self._UNIT_:
                         literal = cl['clause'][-1]
+                        print "------------->>>>> inside _find_unit_clause function, literal: %s"%literal
                         found_literals.append(literal)
                         self.log.debug("found unit clause: %s"%cl['clause'])
                         #double negation if (-C) then C must be False to get --C ==> C
@@ -260,24 +267,30 @@ class SAT(object):
 
     '''
     Forward Chaining
+    @todo - fix bugs! This doesn't work!
     '''
     def _unit_propagation(self, clauses, model, assignment):
-        for cl in clauses:
+        for clause in clauses:
             print "!!!!!!!!!!!!!!"
-            print "cl: %s"%cl
-            if len(cl) == self._UNIT_:
-                if cl['clause'] == assignment or cl['clause'] == -assignment:
-                    if _satisfied(cl['clause'], assignment):
+            print "clause: %s"%clause
+            #case 1: unit clause
+            if len(clause) == self._UNIT_:
+                if clause== assignment or clause == -assignment:
+                    if _satisfied(clause, assignment):
                         clauses, model, assignment = _simplify(clauses, model, assignment)
                         return self._unit_propagation(clauses, model, assignment)
                     else:
                         conflict = assignment
-                        if cl['clause'] == -assignment:
-                            cl['clause'].remove(-assignment)
+                        if clause == -assignment:
+                            clause.remove(-assignment)
                             conflict = -assignment
                         else:
-                            cl['clause'].remove(assignment)
-                            cl['conflict'].append(conflict)
+                            clause.remove(assignment)
+                            clause.append(conflict)
+            else:
+                #not a unit clause
+                clauses, model, assignment = _simplify(clauses, model, assignment)
+
 
         return (clauses, model, assignment)
 
@@ -300,5 +313,10 @@ class SAT(object):
         [ cl['clause'].remove(-p) for cl in model if (-p in cl['clause'] and p > 0) or (-p in cl['clause'] and p < 0)]
 
         return (clauses, model, P)
+
+
+
+
+
 
 
