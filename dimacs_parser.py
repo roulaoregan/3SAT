@@ -27,7 +27,6 @@ class DimacsParser(object):
                 self.log = log
 
         def parse(self):
-                
                 symbol_list = []
                 if self.file_path:
                         with open(self.file_path) as data:
@@ -50,7 +49,6 @@ class DimacsParser(object):
 
 
         def sentences(self):
-                
                 self.model = [{'clause':cl, 'original':cl, 'conflict': []} for cl in self.clauses]
                 self.log.debug("clauses: %s"%self.clauses)
                 self.log.debug("symbols: %s"%self.symbols.literals)
