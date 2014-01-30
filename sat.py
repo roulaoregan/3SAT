@@ -14,7 +14,7 @@ import sys
 from collections import Counter
 from optparse import OptionParser
 
-
+#@todo - change print statements to log
 class SAT(object):
     def __init__(self, logger=None, clauses=None, symbols=None, model=None):
 
@@ -24,12 +24,7 @@ class SAT(object):
         self.model = {}
         
         if model is not None:
-            print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!model: %s"%model
             self.model = model
-            print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-            print self.model
-            print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-            
 
         self._UNIT_ = 1
 
