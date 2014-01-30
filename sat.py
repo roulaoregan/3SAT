@@ -18,13 +18,18 @@ from optparse import OptionParser
 class SAT(object):
     def __init__(self, logger=None, clauses=None, symbols=None, model=None):
 
-        self.logger = logger
+        self.log = logger
         self.clauses = clauses
         self.symbols = symbols
         self.model = {}
         
         if model is not None:
-            self.model.update(model)
+            print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!model: %s"%model
+            self.model = model
+            print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            print self.model
+            print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            
 
         self._UNIT_ = 1
 
@@ -35,7 +40,7 @@ class SAT(object):
     @returns whether sentence in CNF is SAT
     @rtype boolean
     '''
-    def dpll_satisfiable():
+    def dpll_satisfiable(self):
 
             return self._dpll(self.clauses, self.symbols, self.model)
 
@@ -56,50 +61,50 @@ class SAT(object):
         #if every clause in clauses is True in model return True
         if model:
                 clause_values = [x for x in model if 'clause' in x and x['clause'] == True]
-                self.logger.debug("check if every clause in clauses is True and in model, clause_values: %s"%clause_values)
+                self.log.debug("check if every clause in clauses is True and in model, clause_values: %s"%clause_values)
                 if len(clause_values) == len(model):
                         return True
 
         #if some clause is clauses is False in model return False
         if model:
             empty_clause = [x for x in model if not x.get('clause', None)]
-            self.logger.debug("check if some cluse is False in model, empty_clause: %s"%empty_clause)
+            self.log.debug("check if some cluse is False in model, empty_clause: %s"%empty_clause)
 
             if empty_clause:
-                self.logger.debug("found empty clause: %s"%empty_clause)
+                self.log.debug("found empty clause: %s"%empty_clause)
                 #call self._backtrack()
                 ["found empty clause, original clause: %s conflict with literal: %s"%(x['original'], x['conflict']) for x in empty_clause]
                 return False
 
         #Heuristic 1: Pure Symbol		
         P = self._find_pure_symbol(clauses, symbols, model)
-        self.logger("calling heuristic - pure symbol")
+        self.log.debug("calling heuristic - pure symbol")
 
         if P is not None:
-            self.logger.debug("removing pure literal P: %s"%P)
-            self.logger.debug("forward chaining calling unit_prop")
+            self.log.debug("removing pure literal P: %s"%P)
+            self.log.debug("forward chaining calling unit_prop")
             symbols.remove(P)
-            self.unit_propagation(model,P)
+            self._unit_propagation(clauses, model, P) #clauses, model, assignment
 
-            return _dpll(clauses, symbols, model)
+            return self._dpll(clauses, symbols, model)
 
         #Heuristic 2: Unit Clause and Unit Propagation
         P = self._find_unit_clause(clauses, model)
-        self.logger.debug("calling heuristic unit clause, P: %s" % P)
+        self.log.debug("calling heuristic unit clause, P: %s" % P)
         if P is not None:
             [symbols.remove(symbol) for symbol in P]
             (clauses, model, assignment) = self._unit_propagation(clauses, model, P)
             symbols.remove(assignment)
-            self.logger.debug("removing symbols in P")
-            self.logger.debug("assignment: %s" % assignment)
-            self.logger.debug("calling forward chaining, clauses: %s\n model: %s\n symbols: %s"%(clauses, symbols,model))
+            self.log.debug("removing symbols in P")
+            self.log.debug("assignment: %s" % assignment)
+            self.log.debug("calling forward chaining, clauses: %s\n model: %s\n symbols: %s"%(clauses, symbols,model))
             return self._dpll(clauses, symbols, model)
 
         #Rest
         P = self._most_watched(clauses,symbols)
-        self.logger.debug("rest, calling most watched fn, returns P: %s"%P)
+        self.log.debug("rest, calling most watched fn, returns P: %s"%P)
         if P is not None:
-            self.logger.debug("removing %s from symbols and calling update_model fn"%P)
+            self.log.debug("removing %s from symbols and calling update_model fn"%P)
             symbols.remove(P)
             self._update_model(model, P)
 
@@ -117,7 +122,7 @@ class SAT(object):
         unique = [ literal for literal in flatten if -literal not in flatten]
             
         if unique:
-            self.logger.debug("found unique symbol unique list: %s returning last one found: %s"%(unique,unique[-1]))
+            self.log.debug("found unique symbol unique list: %s returning last one found: %s"%(unique,unique[-1]))
             pure = unique[-1]
 
         return pure
@@ -132,7 +137,7 @@ class SAT(object):
                 if len(cl['clause']) == self._UNIT_:
                         literal = cl['clause'][-1]
                         found_literals.append(literal)
-                        self.logger.debug("found unit clause: %s"%cl['clause'])
+                        self.log.debug("found unit clause: %s"%cl['clause'])
                         #double negation if (-C) then C must be False to get --C ==> C
                         # if literal is (C) then C must be True
                         (clauses, model, assignment) = self._unit_propagation(clauses, model, literal)
@@ -249,7 +254,7 @@ class SAT(object):
         #e.g. P is True and is -9 {'clause':[], 'original':[-9,-10,-41],'conflict':P}
         for cl in model:
             if not cl['clause']:
-                self.logger.debug("found empty clause with %s assigning conflict: %s"%(P, cl['original']))
+                self.log.debug("found empty clause with %s assigning conflict: %s"%(P, cl['original']))
                 cl['conflict'] = P
 
 
@@ -258,7 +263,9 @@ class SAT(object):
     '''
     def _unit_propagation(self, clauses, model, assignment):
         for cl in clauses:
-            if len(cl['clause']) == 1:
+            print "!!!!!!!!!!!!!!"
+            print "cl: %s"%cl
+            if len(cl) == self._UNIT_:
                 if cl['clause'] == assignment or cl['clause'] == -assignment:
                     if _satisfied(cl['clause'], assignment):
                         clauses, model, assignment = _simplify(clauses, model, assignment)
@@ -293,4 +300,5 @@ class SAT(object):
         [ cl['clause'].remove(-p) for cl in model if (-p in cl['clause'] and p > 0) or (-p in cl['clause'] and p < 0)]
 
         return (clauses, model, P)
+
 
