@@ -7,6 +7,7 @@
 import logging
 import math
 import os
+import pprint
 import random
 import re
 import sys
@@ -14,7 +15,7 @@ import sys
 from collections import Counter
 from optparse import OptionParser
 
-#@todo - change print statements to log
+
 class SAT(object):
     def __init__(self, logger=None, clauses=None, symbols=None, model=None):
 
@@ -52,8 +53,8 @@ class SAT(object):
     :param: clauses --> remains unchanged!!! list of lists: [[7,2,3],[6,-14,2],[7,15,-3]]
     '''
     def _dpll(self, clauses, symbols, model={}):
-        print "--->>>>> start dpll"
-        print "symbols: %s"%symbols.literals
+        self.log.debug("--->>>>> start dpll")
+        self.log.debug("symbols: %s"%symbols.literals)
 
         #if every clause in clauses is True in model return True
         if model:
@@ -81,9 +82,9 @@ class SAT(object):
             self.log.debug("removing pure literal P: %s"%P)
             self.log.debug("forward chaining calling unit_prop")
             symbols.remove(P)
-            u_clauses, u_model, _ = self._unit_propagation(clauses, model, P) #clauses, model, assignment
+            u_clauses, u_model = self._unit_propagation(clauses, model, P) #clauses, model, assignment
             self.log.debug("RECURSIVE CALL: calling dpll function")
-            print "revised symbols.literals %s"%symbols.literals
+            self.log.debug( "revised symbols.literals %s"%symbols.literals)
             return self._dpll(u_clauses, symbols , u_model)
 
         #Heuristic 2: Unit Clause and Unit Propagation
@@ -91,7 +92,7 @@ class SAT(object):
         self.log.debug("calling heuristic unit clause, P: %s" % P)
         if P is not None:
             [symbols.remove(symbol) for symbol in P]
-            (clauses, model, assignment) = self._unit_propagation(clauses, model, P)
+            clauses, model = self._unit_propagation(clauses, model, P)
             symbols.remove(assignment)
             self.log.debug("removing symbols in P")
             self.log.debug("assignment: %s" % assignment)
@@ -102,9 +103,9 @@ class SAT(object):
         P = self._most_watched(clauses,symbols)
         self.log.debug("rest, calling most watched fn, returns P: %s"%P)
         if P is not None:
-            self.log.debug("removing %s from symbols and calling update_model fn"%P)
+            self.log.debug("removing %s from symbols and calling _unit_propagation fn"%P)
             symbols.remove(P)
-            self._update_model(model, P)
+            clauses, model = self._unit_propagation(clauses, model, P)
 
         return self._dpll(clauses, symbols, model)
 
@@ -115,17 +116,17 @@ class SAT(object):
     :return first pure literal seen
     '''
     def _find_pure_symbol(self, clauses, symbols, model):
-        print "---->>>> inside _find_pure_symbol function"
-        print "---------->>>>> symbols: %s"%symbols.literals
+        self.log.debug("---->>>> inside _find_pure_symbol function")
+        self.log.debug("---------->>>>> symbols: %s"%symbols.literals)
         pure = None
         flatten = [ sublist for x in clauses for sublist in x]
         unique = [ literal for literal in flatten if -literal not in flatten]
-        print "---- flatten: %s"%flatten
-        print "----- unique: %s"%unique
+        self.log.debug("---->>>> flatten: %s"%flatten)
+        self.log.debug("----->>>> unique: %s"%unique)
         if unique:
             self.log.debug("found unique symbol unique list: %s returning last one found: %s"%(unique,unique[-1]))
             pure = unique[-1]
-        print "pure: %s"%pure
+        self.log.debug("returning pure literal: %s"%pure)
         return pure
 
     '''
@@ -231,87 +232,65 @@ class SAT(object):
         return sat
 
     '''
-    :param: model
-    :param: P a literal that is assigned either True or False
-    '''
-    def _update_model(self, model, P):
-        for cl in model:
-        #case 1: P is True and in the clause --> we can assign clause as True
-            if P > 0 and P in cl['clause']:
-                cl['clause'] = True
-                    #case 2: P is True and the negation of P is in the clause
-            elif P > 0 and ((P *-1) in cl['clause']):
-                    cl['clause'].remove(P)
-            #case 3: P is False and in the clause --> remove P and keep the other unassigned literals in the clause
-            # [-A v -B v -C] and A is assigned False then -(-A) <==> A
-            elif P < 0 and P in cl['clause']:
-                    cl['clause'] = True
-            #case 4: P is False and the negation is in the clause
-            # [A v -B v -C] and A is assigned False -A, then remove A and keep the other unassigned literals in the clause
-            elif P < 0 and ((P*-1) in cl['clause']):
-                    cl['clause'].remove(P)
-
-
-        #check for an clauses that are empty --> if so assign P as a conflict literal in that clause
-        #e.g. P is True and is -9 {'clause':[], 'original':[-9,-10,-41],'conflict':P}
-        for cl in model:
-            if not cl['clause']:
-                self.log.debug("found empty clause with %s assigning conflict: %s"%(P, cl['original']))
-                cl['conflict'] = P
-
-
-    '''
     Forward Chaining
-    @todo - fix bugs! This doesn't work!
+    @todo - test
     '''
     def _unit_propagation(self, clauses, model, assignment):
+        self.log.debug("inside _unit_propagation function ->>>> assigning: %s"%assignment)
+        conflict = False
         for clause in clauses:
             print "!!!!!!!!!!!!!!"
             print "clause: %s"%clause
             #case 1: unit clause
-            if len(clause) == self._UNIT_:
-                if clause== assignment or clause == -assignment:
-                    if _satisfied(clause, assignment):
-                        clauses, model, assignment = _simplify(clauses, model, assignment)
-                        return self._unit_propagation(clauses, model, assignment)
-                    else:
-                        conflict = assignment
-                        if clause == -assignment:
-                            clause.remove(-assignment)
-                            conflict = -assignment
-                        else:
-                            clause.remove(assignment)
-                            clause.append(conflict)
-            else:
-                #not a unit clause
-                clauses, model, assignment = _simplify(clauses, model, assignment)
+            print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> %s"%((assignment or -assignment) in clause)
+            if (assignment or -assignment) in clause:
+                print "inside the if statement"
+                if len(clause) == self._UNIT_:
+                
+                    if not (self._satisfied(clause, assignment) or self._satisfied(clause, -assignment)):
+                        conflict = True
+                        self.log.debug("conflict literal: %s"%conflict)                
+                
+                (updated_clauses, updated_model) = self._simplify(clauses, model, assignment)
+                self.log.debug("updated_clauses: %s"%updated_clauses)
+                self.log.debug("updated_model: %s"%updated_model)
+        self.log.debug("-->>>> literal should now be removed!!, check clauses:")
+        self.log.debug("clauses: %s"%clauses)
 
-
-        return (clauses, model, assignment)
+        self.log.debug("model: %s"%model)
+        return (clauses, model)
 
     '''
     param: clauses
     param: P assignment of literal
+    @todo - BUG FIX!!! not working!
     '''
-    def _simplify(self, clauses, model, P):
+    def _simplify(self, clauses, model, P, conflict=False):
+        self.log.debug("inside _simplify function removing assigned literal: %s"%P)
         #find clauses to remove
-        remove = [i for i in clauses if (P in i and P < 0) or (P in i and P > 0)]
-
+        remove_p = [i for i in clauses if (P in i and P < 0) or (P in i and P > 0)]
+        self.log.debug("remove P in following list: %s"%remove_p)
         #remove clauses assigned as True  for both model and clauses
-        [clauses.remove(clause) for clause in remove]
+        [clauses.remove(clause) for clause in remove_p if len(clause) == self._UNIT_]
         for cl in model:
-            if cl['clause'] in remove:
+            if cl['clause'] in remove_p and len(cl['clause']) == self._UNIT_:
                 cl['clause'] = True
-
+                self.log.debug("assigning clause: %s to TRUE!!"%cl['clause'])
         #remove literal from clauses and model
         [ i.remove(-P) for i in clauses if (-P in i and a > 0) or (-P in i and P < 0)]
-        [ cl['clause'].remove(-p) for cl in model if (-p in cl['clause'] and p > 0) or (-p in cl['clause'] and p < 0)]
+        [ cl['clause'].remove(-P) for cl in model if (-P in cl['clause'] and P > 0) or (-P in cl['clause'] and P < 0)]
 
-        return (clauses, model, P)
+        #if conflict:
+        empty_clause = [cl['conflict'].append(P) for cl in model if not cl['clause']]
+        if empty_clause:
+            self.log.debug("found empty clause with %s assigning conflict: "%(P, empty_clause))
 
+        for c in clauses:
+            print c
 
-
-
-
+        for cl in model:
+            print cl['clause']
+            print cl['original']
+        return (clauses, model)
 
 
