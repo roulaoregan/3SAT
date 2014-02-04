@@ -23,27 +23,28 @@ def set_logger(file_path, verbose=False):
 	logger = None
 
 	if file_path and os.path.exists(file_path):
-			logger = logging.getLogger("dpll_log")
-			logger.setLevel(logging.DEBUG)
-			#save log in current working directory
-			fh = logging.FileHandler(os.path.join(os.getcwd(), "dpll.log"))
-			fh.setLevel(logging.DEBUG)
+		logger = logging.getLogger("dpll_log")
+		logger.setLevel(logging.DEBUG)
+		#save log in current working directory
+		fh = logging.FileHandler(os.path.join(os.getcwd(), "dpll.log"))
+		fh.setLevel(logging.DEBUG)
 			
-			ch = logging.StreamHandler()
-			if verbose:
-				ch.setLevel(logging.DEBUG)
-			else:
-				ch.setLevel(logging.INFO)
+		ch = logging.StreamHandler()
+		if verbose:
+			ch.setLevel(logging.DEBUG)
+		else:
+			ch.setLevel(logging.INFO)
 
-			formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-			fh.setFormatter(formatter)
-			ch.setFormatter(formatter)
-			logger.addHandler(fh)
-			logger.addHandler(ch)
-			return logger
+		formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+		fh.setFormatter(formatter)
+		ch.setFormatter(formatter)
+		
+		logger.addHandler(fh)
+		logger.addHandler(ch)
+		
+		return logger
 	else:
 		raise FileInputError("No file path or file doesn't exist")
-
 	
 
 def main(argv):
