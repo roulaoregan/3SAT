@@ -1,29 +1,35 @@
 3SAT
 ====
 
-(1) PROJECT:
+PROJECT:
+========
 This is a Python implementation of Davis–Putnam–Logemann–Loveland (DPLL) algorithm for solving CNF-SAT (Conjunctive Normal Form satisfiability) problems.
  
 Current version is single-threaded implementation.
 
 
 How to Run at Command line:
+============================
 Reads and parses Dimacs files
 Argument Handlers:
 $ python driverSAT.py -h
-Usage: ****************  DPLL 3 SAT Solver  ****************
+Usage:
+
 
 Options:
+
   -h, --help            show this help message and exit
-  -f FILE, --file=FILE  Dimacs file in CNF, Format -->> in cwd: file.dimacs
-                        else: /path/to/file/dimacs_file.dimacs
+  
+  -f FILE, --file=FILE  Dimacs file in CNF, Format -->> in cwd: file.dimacs else: /path/to/file/dimacs_file.dimacs
+  
   -v, --verbose  
 
-Todo:
+Todo
+=====
 Backtrack is currently set to "OFF" until all unit tests are complete and successful.
 
-License:
-
+License
+========
 (LGPL version 3)
 
 Copyright (c) 2010 Spiridoula O'Regan
