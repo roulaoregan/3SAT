@@ -16,39 +16,35 @@ from collections import Counter
 from optparse import OptionParser
 from dimacs_parser import DimacsParser
 from sat import SAT
+from exception_file_handling import FileInputError
 
-'''
-Handles file input errors
-'''
-class FileInputError(Exception):
-        def __init__(self, value):
-                self.value = value
-        def __str__(self):
-                return repr(self.value)
 
 def set_logger(file_path, verbose=False):
-	if file_path:
-		logger = logging.getLogger("dpll_log")
-		logger.setLevel(logging.DEBUG)
-		#save log in current working directory
-		fh = logging.FileHandler(os.path.join(os.getcwd(), "dpll.log"))
-		fh.setLevel(logging.DEBUG)
-		
-		ch = logging.StreamHandler()
-		if verbose:
-			ch.setLevel(logging.DEBUG)
-		else:
-			ch.setLevel(logging.INFO)
+	logger = None
 
-		formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-		fh.setFormatter(formatter)
-		ch.setFormatter(formatter)
-		logger.addHandler(fh)
-		logger.addHandler(ch)
+	if file_path and os.path.exists(file_path):
+			logger = logging.getLogger("dpll_log")
+			logger.setLevel(logging.DEBUG)
+			#save log in current working directory
+			fh = logging.FileHandler(os.path.join(os.getcwd(), "dpll.log"))
+			fh.setLevel(logging.DEBUG)
+			
+			ch = logging.StreamHandler()
+			if verbose:
+				ch.setLevel(logging.DEBUG)
+			else:
+				ch.setLevel(logging.INFO)
+
+			formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+			fh.setFormatter(formatter)
+			ch.setFormatter(formatter)
+			logger.addHandler(fh)
+			logger.addHandler(ch)
+			return logger
 	else:
 		raise FileInputError("No file path or file doesn't exist")
 
-	return logger
+	
 
 def main(argv):
 	pp = pprint.PrettyPrinter(indent=4)	
