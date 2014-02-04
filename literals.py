@@ -10,7 +10,6 @@ So: first pass, "assign" literal as either T or F, if this causes a conflict, re
 cbj() will try the negation of the literal. If there is a conflict with the negation, the next iteration will check
  if this literal as been already reassigned, if it returns TRUE then the procedure has tried both TRUE and FALSE and
 therefore we can no longer continue and will have to report UNSAT.
-
 '''
 class Literals(object):
         def __init__(self):
