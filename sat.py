@@ -20,6 +20,7 @@ class SAT(object):
     def __init__(self, logger=None, clauses=None, symbols=None, model=None):
 
         self.log = logger
+        print "self.log: %s"%self.log
         self.clauses = clauses
         self.symbols = symbols
         self.model = {}
@@ -59,18 +60,15 @@ class SAT(object):
     '''
     def _dpll(self, clauses, symbols, model={}):
 
-        # if every clause in clauses is True in model return True
-        #
+        #if every clause in clauses is True in model return True
         if model:
-            self.log.debug("Check if every clause is True")
+            self.log.debug("CHECK IF EVERY CLAUSE IS TRUE!!!")
             clause_values = [x for x in model if 'clause' in x and x['clause'] == True]
-            
-            self.log.debug("cCeck if every clause in clauses is True and in model, clause_values: %s"%clause_values)
+            self.log.debug("check if every clause in clauses is True and in model, clause_values: %s"%clause_values)
             if len(clause_values) == len(model):
                 return True
 
-        # if some clause is clauses is False in model return False
-        #
+        #if some clause is clauses is False in model return False
         if model:
             empty_clause = [x for x in model if not x.get('clause', None)]
             self.log.debug("check if some clause is False in model, empty_clause: %s"%empty_clause)
@@ -81,9 +79,7 @@ class SAT(object):
                 ["found empty clause, original clause: %s conflict with literal: %s"%(x['original'], x['conflict']) for x in empty_clause]
                 return False
 
-	###########################
-        # Heuristic 1: Pure Symbol
-        #
+        #Heuristic 1: Pure Symbol		
         P = self._find_pure_symbol(clauses, symbols, model)
         self.log.debug("calling heuristic - pure symbol")
 
@@ -95,10 +91,8 @@ class SAT(object):
             #
             self.log.debug( "revised symbols.literals %s"%symbols.literals)
             return self._dpll(clauses, symbols, model)
-	
-	###########################
-        # Heuristic 2: Unit Clause and Unit Propagation
-        #
+
+        #Heuristic 2: Unit Clause and Unit Propagation
         P = self._find_unit_clause(clauses, model)
         self.log.debug("calling heuristic unit clause, P: %s" % P)
         if P is not None:            
@@ -108,9 +102,7 @@ class SAT(object):
             clauses, model = self._unit_propagation(clauses, model, P)  
             return self._dpll(clauses, symbols, model)
 
-        ###########################
-        # Rest
-        #
+        #Rest
         P = self._most_watched(clauses,symbols)
         self.log.debug("calling most watched fn, returns P: %s"%P)
         if P is not None:
@@ -235,7 +227,7 @@ class SAT(object):
     '''
     check if clause is satisfiable with literal assignment
     '''
-    def _satisfied(clause, assignment):
+    def _satisfied(self, clause, assignment):
         
         sat = None
         if len(clause) == self._UNIT_:
@@ -305,14 +297,21 @@ class SAT(object):
             print "found empty_clause"
             self.log.debug("found empty clause with %s assigning conflict: "%(P, empty_clause))
 
-        unit_clauses = [ sublist for x in clauses for sublist in x if len(sublist) == self._UNIT_]
-        conflict = [ literal for literal in unit_clauses  if -literal not in unit_clauses]
+        unit_clauses = [ clause[-1] for clause in clauses if len(clause) == self._UNIT_]
+        conflict = [ literal for literal in unit_clauses  if -literal in unit_clauses]
         if conflict:
-            [cl['conflict'].append(P) for cl in model if (P or -P) in cl['clause']]
-            self.log.debug("found conflict with %s assigning conflict: "%(P, empty_clause))
+            for cl in model:
+                if not isinstance(cl['clause'], bool):
+                    if (P or -P) in cl['clause'] and len(cl['clause']) == self._UNIT_:
+                        if P in cl['clause']:
+                            cl['conflict'].append(P)
+                        else:
+                            cl['conflict'].append(-P)
+            self.log.debug("found conflict assigning literal: %s"%P)
 
         self.log.debug(pp.pprint(clauses))
         self.log.debug(pp.pprint(model))
 
         return (clauses, model)
+
 
