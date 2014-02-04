@@ -20,7 +20,6 @@ class SAT(object):
     def __init__(self, logger=None, clauses=None, symbols=None, model=None):
 
         self.log = logger
-        print "self.log: %s"%self.log
         self.clauses = clauses
         self.symbols = symbols
         self.model = {}
@@ -41,10 +40,8 @@ class SAT(object):
     @rtype boolean
     '''
     def dpll_satisfiable(self):
-        print "inside dpll_satisfiable function"
-        result = self._dpll(self.clauses, self.symbols, self.model)
-        print "result: %s"%result
-        return result
+    	
+        return self._dpll(self.clauses, self.symbols, self.model)
 
     '''
     :param: model, list of dictionaries
@@ -100,7 +97,7 @@ class SAT(object):
                 ["found empty clause, original clause: %s conflict with literal: %s"%(x['original'], x['conflict']) for x in empty_clause]
                 return False
 
-        ####################
+        ##########################
         # Heuristic 1: Pure Symbol
         #	
         P = self._find_pure_symbol(clauses, symbols, model)
@@ -115,7 +112,7 @@ class SAT(object):
             self.log.debug( "revised symbols.literals %s"%symbols.literals)
             return self._dpll(clauses, symbols, model)
 
-        ####################
+        ##########################
         # Heuristic 2: Unit Clause and Unit Propagation
         #
         P = self._find_unit_clause(clauses, model)
@@ -127,7 +124,7 @@ class SAT(object):
             clauses, model = self._unit_propagation(clauses, model, P)  
             return self._dpll(clauses, symbols, model)
 
-        ####################
+        ##########################
         # Rest
         #
         P = self._most_watched(clauses,symbols)
