@@ -15,7 +15,10 @@ import sys
 from collections import Counter
 from optparse import OptionParser
 
-
+'''
+class that handles the recursive DPLL procedure
+handles backtracking too
+'''
 class SAT(object):
     def __init__(self, logger=None, clauses=None, symbols=None, model=None):
 
@@ -36,8 +39,8 @@ class SAT(object):
     '''
     :param: sentence tuple in the form of (clauses, symbols, model)
     :ptype: tuple 
-    @returns whether sentence in CNF is SAT
-    @rtype boolean
+    :return: whether sentence in CNF is SAT
+    :rtype boolean
     '''
     def dpll_satisfiable(self):
     	
@@ -51,7 +54,8 @@ class SAT(object):
                 if there is a conflict:{'clause':[], 'original': [9,5,3], 'conflict': [-9]}
     :param: symbols, set set([7, 15, 8, 4,12]) of type Literal Class
     :param: clauses --> remains unchanged!!! list of lists: [[7,2,3],[6,-14,2],[7,15,-3]]
-    :return: True or False
+    :return: whether CNF is SAT or UNSAT
+    :rtype: boolean
     '''
     def _dpll(self, clauses, symbols, model={}):
 
@@ -137,10 +141,8 @@ class SAT(object):
         return self._dpll(clauses, symbols, model)
 
     '''
-    :param: clauses
-    :param: symbols
-    :param: model
-    :return first pure literal seen
+    :return: first pure literal seen
+    :rtype: integer
     '''
     def _find_pure_symbol(self, clauses, symbols, model):
 
@@ -155,8 +157,8 @@ class SAT(object):
         return pure
 
     '''
-    :param: clauses
-    :param: model
+    :return: literal in first found unit clause
+    :rtype: integer
     '''
     def _find_unit_clause(self, clauses, model):
         found_literal = None
@@ -174,10 +176,8 @@ class SAT(object):
 
     '''
     Get the most frequently seen literal
-    :param: clauses
-    :param: symbols
-    :return literal
-    :rtype int
+    :return: literal
+    :rtype: integer
     '''
     def _most_watched(self, clauses, symbols):
 
@@ -195,6 +195,8 @@ class SAT(object):
     '''
     Conflict directed backjumping
     re-assign q and see if there are any conflicts
+    :return: whether conflict was resolved
+    :rtype: boolean
     '''
     def _cbj(self, clauses, symbols, model, q):
 
@@ -214,10 +216,6 @@ class SAT(object):
 
     '''
     undo assignment of literal q and restores previous state
-    :param: clauses
-    :param: symbols
-    :param: model
-    :param: q - literal to be un-assigned
     '''
     def _undo(self, clauses, symbols, model, q):
         #unassign literal q in symbols
@@ -234,6 +232,8 @@ class SAT(object):
     :param: symbols
     :param: model
     :param: q literal to be re-assigned
+    :return: whether re assignment is possible
+    :rtype: boolean
     '''
     def _backtrack(self, clauses, symbols, model, q):
 
@@ -250,6 +250,8 @@ class SAT(object):
 
     '''
     check if clause is satisfiable with literal assignment
+    :return: whether clause is SAT with literal assignment
+    :rtype: boolean
     '''
     def _satisfied(self, clause, assignment):
         
@@ -266,6 +268,8 @@ class SAT(object):
     '''
     param: clauses
     param: P assignment of literal
+    :return: updated clauses and model
+    :rtype: tuple
     '''
     def _unit_propagation(self, clauses, model, P, conflict=False):
 
