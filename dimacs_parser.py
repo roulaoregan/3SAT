@@ -18,7 +18,6 @@ from literals import Literals
 
 '''
 Parse the Dimacs file which is in Conjunctive Normal Form
-TODO: change "print" comments to logger!
 
 '''
 class DimacsParser(object):
