@@ -60,7 +60,7 @@ class DimacsParser(object):
 
 
         def sentences(self):
-                #CREATE A DEEP COPY!!!!
+
                 deep_copy = copy.deepcopy(self.clauses)
                 self.model = [{'clause':cl, 'original':copy.deepcopy(cl), 'conflict': []} for cl in deep_copy]
                 self.log.debug("******************************************************")
