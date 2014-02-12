@@ -289,8 +289,8 @@ class SAT(object):
                     else:
                         c[:] = []
                 else:
+           	    negative_literal = [ x for x in c if x < 0]
                     if (P or -P) > 0:
-                        negative_literal = [ x for x in c if x < 0]
                         if not negative_literal:
                             remove_clauses.append(c)
                         else:
@@ -302,7 +302,6 @@ class SAT(object):
                         if P in c:                        
                             c.remove(P)
                         elif -P in c and -P > 0:
-                            negative_literal = [x for x in c if x < 0]
                             if not negative_literal:
                             	remove_clauses.append(c)
                             	
