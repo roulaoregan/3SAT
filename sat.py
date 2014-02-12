@@ -278,29 +278,35 @@ class SAT(object):
         pp.pprint(clauses)
         pp.pprint("-->>>> assigning literal: %s"%P)
         self.symbols.assign(P)
-
+	
+	remove_clauses = []
+	
         for c in clauses:
             if (P in c) or (-P in c):
                 if len(c) == self._UNIT_:
                     if self._satisfied(c,P):
-                        clauses.remove(c)
+                        remove_clauses.append(c)
                     else:
                         c[:] = []
                 else:
                     if (P or -P) > 0:
                         negative_literal = [ x for x in c if x < 0]
                         if not negative_literal:
-                            clauses.remove(c)
+                            remove_clauses.append(c)
                         else:
                             if P in c:
                                 c.remove(P)
                             elif -P in c:
                                 c.remove(-P)
-                    if (P or -P) < 0:
+                    if (P or -P) < 0: 
                         if P in c:                        
                             c.remove(P)
-                        else:
-                            c.remove(-P)   
+                        elif -P in c and -P > 0:
+                            negative_literal = [x for x in c if x < 0]
+                            if not negative_literal:
+                            	remove_clauses.append(c)
+                            	
+        [clauses.remove(x) for x in remove_clauses]
         
         self.log.debug("update model")  
         for cl in model:
