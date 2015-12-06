@@ -17,7 +17,7 @@ from optparse import OptionParser
 
 '''
 class that handles the recursive DPLL procedure
-handles backtracking too
+todo: backtrack not fully implemented yet :)
 '''
 class SAT(object):
     def __init__(self, logger=None, clauses=None, symbols=None, model=None):
